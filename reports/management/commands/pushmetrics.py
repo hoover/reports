@@ -12,15 +12,16 @@ class Command(BaseCommand):
     help = "Push metrics data to elasticsearch"
 
     def handle(self, **options):
-        day = '2016-06-12'
-        with (metrics / 'users' / '{}.txt'.format(day)).open() as lines:
-            for n, line in enumerate(lines, 1):
-                doc_id = 'users.{}.{:06d}'.format(day, n)
-                data = json.loads(line)
-                data['time'] = int(data['time'])
-                es.index(
-                    index=settings.ELASTICSEARCH_INDEX,
-                    doc_type='event',
-                    id=doc_id,
-                    body=data,
-                )
+        for file in (metrics / 'users').iterdir():
+            with file.open() as lines:
+                for n, line in enumerate(lines, 1):
+                    doc_id = 'users.{}.{:06d}'.format(file.stem, n)
+                    data = json.loads(line)
+                    data['time'] = int(data['time'])
+                    es.index(
+                        index=settings.ELASTICSEARCH_INDEX,
+                        doc_type='event',
+                        id=doc_id,
+                        body=data,
+                    )
+                print(file.stem, n)
