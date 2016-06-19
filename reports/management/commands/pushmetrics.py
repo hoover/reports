@@ -17,7 +17,7 @@ class Command(BaseCommand):
                 for n, line in enumerate(lines, 1):
                     doc_id = 'users.{}.{:06d}'.format(file.stem, n)
                     data = json.loads(line)
-                    data['time'] = int(data['time'])
+                    data['time'] = int(data['time'] * 1000)
                     es.index(
                         index=settings.ELASTICSEARCH_INDEX,
                         doc_type='event',
