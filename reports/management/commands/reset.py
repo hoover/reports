@@ -15,6 +15,8 @@ class Command(BaseCommand):
             'doc': {
               'properties': {
                 'time': {'type': 'date'},
+                'type': {'type': 'string', 'index': 'not_analyzed'},
+                'user': {'type': 'string', 'index': 'not_analyzed'},
               },
             },
           },
