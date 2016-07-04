@@ -7,6 +7,14 @@ from elasticsearch import Elasticsearch
 metrics = Path(settings.METRICS_PATH)
 es = Elasticsearch(settings.ELASTICSEARCH_URL)
 
+def fixup(data):
+    if 'username' in data:
+        data['user'] = data.pop('username')
+
+    if data['time'] < 1467632853000: # 2016-07-04, 14:47:33
+        if data['type'] in ['search', 'document']:
+            data['collections'] = ['maldini']
+
 class Command(BaseCommand):
 
     help = "Push metrics data to elasticsearch"
@@ -31,6 +39,7 @@ class Command(BaseCommand):
                         continue
                     data = json.loads(line)
                     data['time'] = int(data['time'] * 1000)
+                    fixup(data)
                     es.index(
                         index=settings.ELASTICSEARCH_INDEX,
                         doc_type='event',
