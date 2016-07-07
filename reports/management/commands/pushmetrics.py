@@ -32,7 +32,7 @@ class Command(BaseCommand):
         return ''
 
     def handle(self, all, **options):
-        latest_doc = None if all else self.get_latest_doc()
+        latest_doc = '' if all else self.get_latest_doc()
         count = 0
         files = sorted((metrics / 'users').iterdir())
         if not all:
