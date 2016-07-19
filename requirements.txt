@@ -6,7 +6,7 @@
 #
 
 click==6.6                # via pip-tools
-django==1.9.7
+django==1.9.8
 elasticsearch==2.3.0
 first==2.0.1              # via pip-tools
 pip-tools==1.7.0
