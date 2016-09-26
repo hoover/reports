@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 from django.conf import settings
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, helpers as es_helpers
 
 metrics = Path(settings.METRICS_PATH)
 es = Elasticsearch(settings.ELASTICSEARCH_URL)
@@ -41,27 +41,33 @@ def push_source(source_dir, all):
     source = source_dir.name
     files = sorted(source_dir.iterdir())
     latest_doc = '' if all else get_latest_doc()
-    count = 0
     if not all:
         files = files[-2:]
-    for file in files:
-        with file.open() as lines:
-            for n, line in enumerate(lines, 1):
-                doc_id = 'users.{}.{:06d}'.format(file.stem, n)
-                if doc_id <= latest_doc:
-                    continue
-                data = json.loads(line)
-                data['time'] = int(data['time'] * 1000)
-                fixup(data)
-                es.index(
-                    index=settings.ELASTICSEARCH_INDEX,
-                    doc_type=source,
-                    id=doc_id,
-                    body=data,
-                )
-                count += 1
-            print(file.stem, n)
-    print(count)
+
+    def iter_lines():
+        for file in files:
+            with file.open() as lines:
+                for n, line in enumerate(lines, 1):
+                    doc_id = 'users.{}.{:06d}'.format(file.stem, n)
+                    if doc_id <= latest_doc:
+                        continue
+                    data = json.loads(line)
+                    data['time'] = int(data['time'] * 1000)
+                    fixup(data)
+                    data.update({
+                        '_op_type': 'index',
+                        '_index': settings.ELASTICSEARCH_INDEX,
+                        '_type': source,
+                        '_id': doc_id,
+                    })
+                    yield data
+                print(file.stem, n)
+
+    (ok, err) = es_helpers.bulk(es, stats_only=True, actions=iter_lines())
+    if err:
+        raise RuntimeError("Indexing failures: %d" % err)
+
+    print(ok)
 
 def push_metrics(all):
     for source_dir in metrics.iterdir():
