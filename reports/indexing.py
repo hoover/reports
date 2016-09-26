@@ -33,6 +33,7 @@ def fixup(data, source):
         if 'time' not in data:
             data['time'] = data.pop('start')
 
+    data['source'] = source
     data['time'] = int(data['time'] * 1000)
 
 def get_latest_doc():
@@ -63,7 +64,7 @@ def push_source(source_dir, all):
                     data.update({
                         '_op_type': 'index',
                         '_index': settings.ELASTICSEARCH_INDEX,
-                        '_type': source,
+                        '_type': 'event',
                         '_id': doc_id,
                     })
                     yield data
