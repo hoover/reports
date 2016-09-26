@@ -3,8 +3,24 @@ import json
 from django.conf import settings
 from elasticsearch import Elasticsearch
 
+es = Elasticsearch(settings.ELASTICSEARCH_URL)
+
 metrics = Path(settings.METRICS_PATH)
 es = Elasticsearch(settings.ELASTICSEARCH_URL)
+
+def reset_index():
+    es.indices.delete(settings.ELASTICSEARCH_INDEX, ignore=[400, 404])
+    es.indices.create(settings.ELASTICSEARCH_INDEX, {
+      'mappings': {
+        'doc': {
+          'properties': {
+            'time': {'type': 'date'},
+            'type': {'type': 'string', 'index': 'not_analyzed'},
+            'user': {'type': 'string', 'index': 'not_analyzed'},
+          },
+        },
+      },
+    })
 
 def fixup(data):
     if 'username' in data:
