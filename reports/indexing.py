@@ -70,6 +70,8 @@ def push_source(source_dir, all):
 
     print(ok)
 
-def push_metrics(all):
+def push_metrics(all, source_list):
     for source_dir in metrics.iterdir():
+        if source_list and source_dir.name not in source_list:
+            continue
         push_source(source_dir, all)
