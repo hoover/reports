@@ -20,13 +20,14 @@ def reset_index():
       },
     })
 
-def fixup(data):
-    if 'username' in data:
-        data['user'] = data.pop('username')
+def fixup(data, source):
+    if source == 'users':
+        if 'username' in data:
+            data['user'] = data.pop('username')
 
-    if data['time'] < 1467632853000: # 2016-07-04, 14:47:33
-        if data['type'] in ['search', 'document']:
-            data['collections'] = ['maldini']
+        if data['time'] < 1467632853000: # 2016-07-04, 14:47:33
+            if data['type'] in ['search', 'document']:
+                data['collections'] = ['maldini']
 
 def get_latest_doc():
     res = es.search(
@@ -53,7 +54,7 @@ def push_source(source_dir, all):
                         continue
                     data = json.loads(line)
                     data['time'] = int(data['time'] * 1000)
-                    fixup(data)
+                    fixup(data, source)
                     data.update({
                         '_op_type': 'index',
                         '_index': settings.ELASTICSEARCH_INDEX,
