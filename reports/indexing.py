@@ -66,4 +66,5 @@ def push_source(source_dir, all):
     print(count)
 
 def push_metrics(all):
-    push_source(metrics / 'users', all)
+    for source_dir in metrics.iterdir():
+        push_source(source_dir, all)
