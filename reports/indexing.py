@@ -3,8 +3,6 @@ import json
 from django.conf import settings
 from elasticsearch import Elasticsearch
 
-es = Elasticsearch(settings.ELASTICSEARCH_URL)
-
 metrics = Path(settings.METRICS_PATH)
 es = Elasticsearch(settings.ELASTICSEARCH_URL)
 
