@@ -61,7 +61,7 @@ def push_source(source_dir, all):
                         '_id': doc_id,
                     })
                     yield data
-                print(file.stem, n)
+                print(source, file.stem, n)
 
     (ok, err) = es_helpers.bulk(es, stats_only=True, actions=iter_lines())
     if err:
