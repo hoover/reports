@@ -29,6 +29,10 @@ def fixup(data, source):
             if data['type'] in ['search', 'document']:
                 data['collections'] = ['maldini']
 
+    if source == 'jobs':
+        if 'time' not in data:
+            data['time'] = data.pop('start')
+
 def get_latest_doc():
     res = es.search(
         index=settings.ELASTICSEARCH_INDEX,
