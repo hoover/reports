@@ -25,13 +25,15 @@ def fixup(data, source):
         if 'username' in data:
             data['user'] = data.pop('username')
 
-        if data['time'] < 1467632853000: # 2016-07-04, 14:47:33
+        if data['time'] < 1467632853: # 2016-07-04, 14:47:33
             if data['type'] in ['search', 'document']:
                 data['collections'] = ['maldini']
 
     if source == 'jobs':
         if 'time' not in data:
             data['time'] = data.pop('start')
+
+    data['time'] = int(data['time'] * 1000)
 
 def get_latest_doc():
     res = es.search(
@@ -57,7 +59,6 @@ def push_source(source_dir, all):
                     if doc_id <= latest_doc:
                         continue
                     data = json.loads(line)
-                    data['time'] = int(data['time'] * 1000)
                     fixup(data, source)
                     data.update({
                         '_op_type': 'index',
