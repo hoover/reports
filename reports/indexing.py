@@ -36,10 +36,14 @@ def fixup(data, source):
     data['source'] = source
     data['time'] = int(data['time'] * 1000)
 
-def get_latest_doc():
+def get_latest_doc(source):
     res = es.search(
         index=settings.ELASTICSEARCH_INDEX,
-        body={'sort': [{'time': 'desc'}], 'size': 1},
+        body={
+            'query': {'term': {'source': {'value': source}}},
+            'sort': [{'time': 'desc'}],
+            'size': 1
+        },
     )
     for hit in res['hits']['hits']:
         return hit['_id']
@@ -48,7 +52,7 @@ def get_latest_doc():
 def push_source(source_dir, all):
     source = source_dir.name
     files = sorted(source_dir.iterdir())
-    latest_doc = '' if all else get_latest_doc()
+    latest_doc = '' if all else get_latest_doc(source)
     if not all:
         files = files[-2:]
 
