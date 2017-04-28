@@ -34,7 +34,8 @@ def fixup(data, source):
             data['time'] = data.pop('start')
 
     data['source'] = source
-    data['time'] = int(data['time'] * 1000)
+    if isinstance(data['time'], float):
+        data['time'] = int(data['time'] * 1000)
 
 def get_latest_doc(source):
     res = es.search(
